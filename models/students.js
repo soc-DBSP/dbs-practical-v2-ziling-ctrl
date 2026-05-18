@@ -8,16 +8,39 @@ module.exports.retrieveAll = function retrieveAll() {
     });
 };
 
-module.exports.enrolNewStudent = function enrolNewStudent(adminNumber, studentName, gender, address, dob, nationality, courseCode) {
-    const sql = 'CALL enrol_new_student($1, $2, $3, $4, $5, $6, $7)';
-    return query(sql, [adminNumber, studentName, gender, address, dob, nationality, courseCode])
+// module.exports.enrolNewStudent = function enrolNewStudent(adminNumber, studentName, gender, address, dob, nationality, courseCode) {
+//     const sql = 'CALL enrol_new_student($1, $2, $3, $4, $5, $6, $7)';
+//     return query(sql, [adminNumber, studentName, gender, address, dob, nationality, courseCode])
+//         .then(function (result) {
+//             console.log('Student enrolled');
+//         })
+//         .catch(function (error) {
+//             if (error.code === SQL_ERROR_CODE.UNIQUE_VIOLATION) {
+//                 throw new UNIQUE_VIOLATION_ERROR(`Student with adm no ${adminNumber} already exists! Cannot create duplicate.`);
+//             } 
+//             if (error.code === SQL_ERROR_CODE.RAISE_EXCEPTION) {
+//                 throw new RAISE_EXCEPTION(error.message);
+//             }
+//             throw error;
+//         });
+// };
+
+module.exports.enrolNewStudent = function enrolNewStudent(adminNumber, studentName,
+    gender, address, dob, nationality, courseCode) {
+    const sql = 'CALL enrol_new_student($1, $2, $3, $4, $5, $6, $7, $8)'; // To match the new method signature of the stored procedure
+    return query(sql, [adminNumber, studentName, gender, address, dob, nationality,
+        courseCode, ''])
         .then(function (result) {
-            console.log('Student enrolled');
+            console.log(result) // For debugging purpose
+            if (result.rows.length == 1 && result.rows[0].errMsg) { // Check if there is an error message
+                throw new RAISE_EXCEPTION(result.rows[0].errMsg) // Throw the error message
+            }
         })
         .catch(function (error) {
             if (error.code === SQL_ERROR_CODE.UNIQUE_VIOLATION) {
-                throw new UNIQUE_VIOLATION_ERROR(`Student with adm no ${adminNumber} already exists! Cannot create duplicate.`);
-            } 
+                throw new UNIQUE_VIOLATION_ERROR(`Student with adm no ${adminNumber}
+already exists! Cannot create duplicate.`);
+            }
             if (error.code === SQL_ERROR_CODE.RAISE_EXCEPTION) {
                 throw new RAISE_EXCEPTION(error.message);
             }
