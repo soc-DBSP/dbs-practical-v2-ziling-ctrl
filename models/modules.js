@@ -7,7 +7,7 @@ module.exports.create = function create(code, name, credit) {
         data: {
             modCode: code,
             modName: name,
-            creditUnit: Number(credit),
+            creditUnit: Number(credit), //parseInt() ctrl+space
         },
     }).then(function (module) {
         //TODO: Return module
@@ -18,7 +18,7 @@ module.exports.create = function create(code, name, credit) {
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
             // The .code property can be accessed in a type-safe manner
             if (error.code === 'P2002') {
-                throw new Error(`The module ${code} already exists`);
+                throw new Error(`The module ${code} already exists`); //instead of returning actual error, return user friendly error message.
             }
         }
         throw error;
@@ -65,7 +65,7 @@ module.exports.deleteByCode = function deleteByCode(code) {
 
         if (error instanceof Prisma.PrismaClientKnownRequestError) {
             // The .code property can be accessed in a type-safe manner
-            if (error.code === 'P2025') {
+            if (error.code === 'P2025') { //record not found
                 throw new Error(`The module ${code} does not exist`);
             }
         }
@@ -75,7 +75,9 @@ module.exports.deleteByCode = function deleteByCode(code) {
 
 module.exports.retrieveAll = function retrieveAll() {
     // TODO: Return all modules
-    return prisma.module.findMany();
+    return prisma.module.findMany().then(function(modules){
+        return modules;
+    });
 };
 
 // module.exports.retrieveByCode = function retrieveByCode(code) {
@@ -117,7 +119,7 @@ module.exports.retrieveByCode = function retrieveByCode(code) {
         },
     }).then(function (module) {
         // Return module
-        if (module == null){
+        if (module == null){ //!module
             throw new Error(`The module ${code} does not exist`);
         }
         return module;
